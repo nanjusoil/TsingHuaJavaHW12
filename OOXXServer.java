@@ -1,14 +1,25 @@
 package ooxx;
 
+import java.awt.Color;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class OOXXServer extends Thread{
+import javax.swing.JFrame;
 
+public class OOXXServer extends JFrame implements Runnable{
+	private String address = "127.0.0.1";
 	private int port = 8765;
-	private ServerSocket server ;
+	private ServerSocket server;
+    ObjectOutputStream out;
+    ObjectInputStream in;
+    ChessPanel chesspanel;
+	OOXXServerMouseListener mouseListener = new OOXXServerMouseListener(this);
 	public OOXXServer(){
 		try
 		{
@@ -19,39 +30,29 @@ public class OOXXServer extends Thread{
 		{
 		}
 	}
-	
 	@Override
-	public void run(){
+	public void run() {
 		Socket socket ;
-		ObjectInputStream in ;
-		ObjectOutputStream out ;
-
-		System.out.println("伺服器已啟動 !"  );
+		System.out.println("Server Started!");
+		Data data;
 		while(true)
 		{
 			socket = null;
 			try
 			{
-				synchronized(server) 
-				{
-					socket = server.accept();
-				}
-				System.out.println("取得連線 : InetAddress = " + socket.getInetAddress()  );
+				socket = server.accept();
+				System.out.println("Server Accepted");
 
-				in = new java.io.ObjectInputStream(socket.getInputStream());
-				out = new java.io.ObjectOutputStream(socket.getOutputStream());
-				Data data;
-				Data data2;
+				in = new ObjectInputStream(socket.getInputStream());
+				out = new ObjectOutputStream(socket.getOutputStream());
+				
 				while((data=(Data)in.readObject())!=null){
-					data2 = new Data(data.getX() +100 , data.getY() + 100 , false);
+					this.mouseListener.canClick = true;
+					chesspanel.chess[data.getX()/100][data.getY()/100] = 1;
+					chesspanel.repaint();
 					System.out.println("我取得的值:"+data.getX());
 					System.out.println("我取得的值:"+data.getY());
-					out.writeObject(data2);
 				}
-
-				in.close();
-				in = null ;
-				socket.close();		
 			}
 			catch(java.io.IOException e)
 			{
@@ -61,9 +62,17 @@ public class OOXXServer extends Thread{
 			}
 		}
 	}
-	
-	public static void main(String args[])
-	{
-		(new OOXXServer()).start();
-	}
+	  public static void main(String[] argc){
+		  OOXXServer ooxxserver = new OOXXServer();
+		  ooxxserver.setSize(800, 800);
+		  
+		  Thread gamethread = new Thread(ooxxserver);
+		  gamethread.start();
+		  ooxxserver.chesspanel = new ChessPanel();
+		  ooxxserver.chesspanel.setBackground(Color.ORANGE);
+		  
+		  ooxxserver.add(ooxxserver.chesspanel);
+		  ooxxserver.setVisible(true);
+	  }
+
 }

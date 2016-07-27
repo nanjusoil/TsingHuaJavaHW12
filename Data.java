@@ -6,12 +6,12 @@ public class Data implements Serializable{
 
 	int x;
 	int y;
-	boolean isReceive;
+	int player;
 	
-	Data(int x , int y, boolean isReceive){
+	Data(int x , int y, int player){
 		this.x = x;
 		this.y = y;
-		this.isReceive = isReceive;
+		this.player = player;
 	}
 	
 	public int getX(){
@@ -20,7 +20,7 @@ public class Data implements Serializable{
 	public int getY(){
 		return y;
 	}
-	public boolean isReceive(){
-		return isReceive;
+	public int isReceive(){
+		return player;
 	}
 }

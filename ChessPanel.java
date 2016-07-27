@@ -20,6 +20,10 @@ public class ChessPanel extends JPanel{
 		for(int i = 0 ; i <8 ; i++)
 			for(int j = 0 ; j <8 ; j++){
 				if(chess[i][j] == 1 ){
+					g.setColor(Color.blue);
+					g.fillRect(i*100, j*100, 100, 100);
+				}else if(chess[i][j] == -1 ){
+					g.setColor(Color.green);
 					g.fillRect(i*100, j*100, 100, 100);
 				}
 			}

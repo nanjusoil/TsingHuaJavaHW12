@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 public class OOXXClient extends JFrame implements Runnable{
 	private String address = "127.0.0.1";
 	private int port = 8765;
+	static boolean canClick = false;
     ObjectOutputStream out;
     ObjectInputStream in;
     ChessPanel chesspanel;
@@ -37,7 +38,9 @@ public class OOXXClient extends JFrame implements Runnable{
 		Data data;
 		try {
 			while((data=(Data)in.readObject())!=null){
-				chesspanel.chess[data.getX()/100][data.getY()/100] = 1;
+				OOXXClient.canClick = true;
+				System.out.println(OOXXClient.canClick);
+				chesspanel.chess[data.getX()/100][data.getY()/100] = -1;
 				chesspanel.repaint();
 			}
 		} catch (ClassNotFoundException e) {
@@ -73,14 +76,18 @@ public class OOXXClient extends JFrame implements Runnable{
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				Data data = new Data(e.getX() , e.getY() , false);
-				try {
-					chessboard.out.writeObject(data);
-				} catch (IOException e1) {
-					e1.printStackTrace();
+				if(OOXXClient.canClick){
+					Data data = new Data(e.getX() , e.getY() , 0);
+					try {
+						chessboard.out.writeObject(data);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					chessboard.chesspanel.chess[e.getX()/100][e.getY()/100] = 1;
+					chessboard.chesspanel.repaint();
+					OOXXClient.canClick = false;
+					System.out.println(OOXXClient.canClick);
 				}
-				chessboard.chesspanel.chess[e.getX()/100][e.getY()/100] = 1;
-				chessboard.chesspanel.repaint();
 			}
 
 			@Override
