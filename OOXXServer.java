@@ -19,7 +19,8 @@ public class OOXXServer extends JFrame implements Runnable{
     ObjectOutputStream out;
     ObjectInputStream in;
     ChessPanel chesspanel;
-	OOXXServerMouseListener mouseListener = new OOXXServerMouseListener(this);
+	boolean canClick = true;
+	//OOXXServerMouseListener mouseListener = new OOXXServerMouseListener(this);
 	public OOXXServer(){
 		try
 		{
@@ -47,7 +48,7 @@ public class OOXXServer extends JFrame implements Runnable{
 				out = new ObjectOutputStream(socket.getOutputStream());
 				
 				while((data=(Data)in.readObject())!=null){
-					this.mouseListener.canClick = true;
+					this.canClick = true;
 					chesspanel.chess[data.getX()/100][data.getY()/100] = 1;
 					chesspanel.repaint();
 					System.out.println("我取得的值:"+data.getX());
@@ -71,6 +72,48 @@ public class OOXXServer extends JFrame implements Runnable{
 		  ooxxserver.chesspanel = new ChessPanel();
 		  ooxxserver.chesspanel.setBackground(Color.ORANGE);
 		  
+		  ooxxserver.chesspanel.addMouseListener(new MouseListener(){
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if(ooxxserver.canClick){
+						Data data = new Data(e.getX() , e.getY() , 0);
+						try {
+							ooxxserver.out.writeObject(data);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+						ooxxserver.chesspanel.chess[e.getX()/100][e.getY()/100] = -1;
+						ooxxserver.chesspanel.repaint();
+						ooxxserver.canClick = false;
+					}
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				  
+			  });
 		  ooxxserver.add(ooxxserver.chesspanel);
 		  ooxxserver.setVisible(true);
 	  }
